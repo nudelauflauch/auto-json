@@ -12,8 +12,8 @@ class switches():
     tkinter = tk.Toplevel()
     beschirftung = ""
     name = ""
-    switch_on = ImageTk.PhotoImage(Image.open("switch_on.png").resize((90, 50), Image.ANTIALIAS))
-    switch_off = ImageTk.PhotoImage(Image.open('switch_off.png').resize((90, 50), Image.ANTIALIAS))
+    switch_on = ImageTk.PhotoImage(Image.open("./switch_on.png").resize((90, 50), Image.ANTIALIAS))
+    switch_off = ImageTk.PhotoImage(Image.open('./switch_off.png').resize((90, 50), Image.ANTIALIAS))
     
     def __init__(self, posx, posy, tkinter, beschirftung, name):
         self.posx = posx
@@ -60,9 +60,10 @@ class add ():
         self.main = tk.Frame(self.haupt, bg='green')
         self.main.place(relwidth=1, relheight=1)
         
-        self.switch_on = ImageTk.PhotoImage(Image.open("switch_on.png").resize((90, 50), Image.ANTIALIAS))
-        self.switch_off = ImageTk.PhotoImage(Image.open('switch_off.png').resize((90, 50), Image.ANTIALIAS))
-        
+        self.switch_on = ImageTk.PhotoImage(Image.open("./switch_on.png").resize((90, 50), Image.ANTIALIAS))
+        self.switch_off = ImageTk.PhotoImage(Image.open('./switch_off.png').resize((90, 50), Image.ANTIALIAS))
+        if not os.path.exists("output"):
+            os.makedirs("output")
         try:
             file = open("output/settings", "r")
             for line in file:
