@@ -21,8 +21,7 @@ class switches():
         self.tkinter = tkinter
         self.beschirftung = beschirftung
         self.name = name
-        
-        
+            
         self.beschreibung = tk.Label(self.tkinter, bg="green",text=self.beschirftung, font=('arial', 12, 'bold'))
         self.beschreibung.place(relx=self.posx, rely=self.posy)
         
@@ -63,7 +62,16 @@ class add ():
         
         self.switch_on = ImageTk.PhotoImage(Image.open("switch_on.png").resize((90, 50), Image.ANTIALIAS))
         self.switch_off = ImageTk.PhotoImage(Image.open('switch_off.png').resize((90, 50), Image.ANTIALIAS))
-
+        
+        try:
+            file = open("output/settings", "r")
+            for line in file:
+                self.modname = line
+        except:
+            file = open("output/settings", "w")
+            file.write("example_mod")
+            self.modname = "example_mod"
+        
         self.draw()
 
 
@@ -87,6 +95,9 @@ class add ():
     def start(self):
         if self.eingabe.get() != "":
             self.weiter()
+        self.modname = self.modname_eingabe.get()
+        
+        file = open("output/settings", "w").write(self.modname)
         
         if self.ausgabe != [] or self.filename:
             print(self.ausgabe)
@@ -97,9 +108,14 @@ class add ():
                     write = write + str(line) + "\n"
                 if not os.path.exists("output/"):
                     os.makedirs("output/")
-                file = open("./output/"+ self.modname +"_mod.txt", "w+")
-                file.write(write)
-
+                try:
+                    if open("./output/"+ self.modname +"_mod.txt"):
+                        file = open("./output/"+ self.modname +"_mod.txt", "a+")
+                        file.write(write)
+                except:
+                    file = open("./output/"+ self.modname +"_mod.txt", "w+")
+                    file.write(write)
+                
                 self.filename = "./output/"+ self.modname +"_mod.txt"
                 file.close()
             create_files(self.haupt, self.filename, self.modname)
@@ -107,12 +123,6 @@ class add ():
             
         else:
             print("ERROR: mindestens 1 datei")
-        
-    def model(self):
-        pass
-    
-    def item_block(self):
-        pass   
     
     def read_in_file(self):
         from tkinter.filedialog import askopenfilename
@@ -217,6 +227,22 @@ class create_files():
                 self.generel_list.append([line[0], model])
         file.close()
 
+    def get_name(self, model):
+        retrun_model = ""
+        was_ = False
+        for index, letter in enumerate(model):
+            if index == 0:
+                retrun_model += str(letter).upper()
+            elif letter == "_":
+                retrun_model += " "
+                was_ = True
+            elif was_:
+                retrun_model += str(letter).upper()
+                was_ = False
+            else:
+                retrun_model += str(letter)
+        return retrun_model
+    
     def model_gen(self):
         if not os.path.exists("output/"+self.modname+"/assets/"+self.modname+"/model/item"):
             os.makedirs("output/"+self.modname+"/assets/"+self.modname+"/model/item")
@@ -226,7 +252,6 @@ class create_files():
             os.makedirs("output/"+self.modname+"/assets/"+self.modname+"/blockstates/")
         
         for model in self.block_liste:
-            print(model)
             if model[1] == "block":
                 models.gen_block_model(model[0], self.modname)
                 models.gen_item_model(model[0], self.modname, False)
@@ -277,7 +302,7 @@ class create_files():
                 
                 for parent, end in zip(aus, name_end):
                     if special:
-                        if model[0] == "door":
+                        if model[1] == "door":
                             models.gen_special_model(f"{model[0]}_{end}", self.modname, parent, True)
                         else:
                             models.gen_special_model(f"{model[0]}_{end}", self.modname, parent, False)
@@ -292,8 +317,22 @@ class create_files():
             models.gen_item_model(item[0], self.modname)
                 
     def lang_gen(self):
-        pass
-    
+        if not os.path.exists("output/"+self.modname+"/assets/"+self.modname+"/lang"):
+            os.makedirs("output/"+self.modname+"/assets/"+self.modname+"/lang")
+            
+        write = "{\n"
+        for model in self.generel_list:
+            if model[1] == "item":
+                write += '  item.'+self.modname + '.' + model[0] + '" : "' + self.get_name(model[0]) + '",\n'
+            elif model[1] == "block":
+                write += '  block.'+self.modname + '.' + model[0] + '" : "' + self.get_name(model[0]) + '",\n'
+            else:
+                write += '  block.'+self.modname + '.' + model[0] + "_" + model[1] + '" : "' + self.get_name(model[0]) + '",\n'
+        write += "}"
+        
+        file = open("output/"+self.modname+"/assets/"+self.modname+"/lang/en_us.json", "w")
+        file.write(write)
+        
     def drop_gen(self):
         if not os.path.exists("output/"+self.modname+"/data/"+self.modname+"/loot_table"):
             os.makedirs("output/"+self.modname+"/data/"+self.modname+"/loot_table")
@@ -346,11 +385,3 @@ class create_files():
 add("ellada")
 
 add.haupt.mainloop()
-
-# aus = create_files(tk.Tk(), "./ausgabe/ellada_mod.txt", "ellada").str_to_list("['asd', ['block', 'door', 'trappdoor', 'stair', 'slab', 'button', 'button', 'fence_gate', 'fence', 'wall']]")
-
-# print(len(aus[1]))
-# print(aus[1][0])
-# print(aus[1][1])
-# print(aus[1][2])
-# print(aus[1][3])
